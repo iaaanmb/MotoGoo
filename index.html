@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoGoo - Sistema de Reservas</title>
+
+  <style>
+    /* ===== VARIABLES Y RESET ===== */
+    :root {
+      --color-fondo: #f5f4f0;
+      --color-blanco: #ffffff;
+      --color-primario: #1a1a1a;
+      --color-acento: #e8500a;       /* naranja/rojo para motos */
+      --color-acento-claro: #fde8e0;
+      --color-borde: #d6d3cc;
+      --color-texto-muted: #6b6860;
+      --color-exito: #2d6a2d;
+      --color-error: #8b1f1f;
+      --radio: 6px;
+      --sombra: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace; /* estilo sencillo tipo consola */
+      background-color: var(--color-fondo);
+      color: var(--color-primario);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ===== ENCABEZADO ===== */
+    header {
+      background-color: var(--color-primario);
+      color: #fff;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid var(--color-acento);
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    header span {
+      font-size: 13px;
+      color: #aaa;
+      margin-left: auto;
+    }
+
+    /* ===== CONTENEDOR PRINCIPAL ===== */
+    .contenedor {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: grid;
+      grid-template-columns: 220px 1fr; /* menú lateral + contenido */
+      gap: 24px;
+    }
+
+    /* ===== MENÚ LATERAL ===== */
+    nav {
+      background-color: var(--color-blanco);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      padding: 12px 0;
+      height: fit-content;
+      box-shadow: var(--sombra);
+    }
+
+    nav p {
+      font-size: 11px;
+      color: var(--color-texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 8px 16px 4px;
+    }
+
+    /* Botones del menú */
+    nav button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--color-primario);
+      border-left: 3px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    nav button:hover {
+      background-color: var(--color-acento-claro);
+    }
+
+    /* Estilo del botón activo en el menú */
+    nav button.activo {
+      border-left-color: var(--color-acento);
+      font-weight: bold;
+      background-color: var(--color-acento-claro);
+      color: var(--color-acento);
+    }
+
+    /* ===== ÁREA DE CONTENIDO ===== */
+    .contenido {
+      background-color: var(--color-blanco);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      padding: 24px;
+      box-shadow: var(--sombra);
+      min-height: 400px;
+    }
+
+    /* Título de cada sección */
+    .contenido h2 {
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 2px solid var(--color-fondo);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      color: var(--color-primario);
+    }
+
+    /* ===== FORMULARIOS ===== */
+    .campo {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: var(--color-texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--color-fondo);
+      color: var(--color-primario);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--color-acento);
+      background: #fff;
+    }
+
+    /* Botón principal de acción */
+    .btn-principal {
+      background-color: var(--color-acento);
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: var(--radio);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-principal:hover {
+      opacity: 0.85;
+    }
+
+    /* Botón secundario (limpiar, etc.) */
+    .btn-secundario {
+      background: none;
+      border: 1px solid var(--color-borde);
+      padding: 8px 16px;
+      border-radius: var(--radio);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--color-texto-muted);
+      margin-left: 8px;
+    }
+
+    .btn-secundario:hover {
+      border-color: #aaa;
+      color: var(--color-primario);
+    }
+
+    /* ===== MENSAJES DE ALERTA ===== */
+    .alerta {
+      padding: 10px 14px;
+      border-radius: var(--radio);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none; /* se muestra con JS */
+    }
+
+    .alerta.exito {
+      background-color: #e6f4e6;
+      color: var(--color-exito);
+      border: 1px solid #b2d8b2;
+    }
+
+    .alerta.error {
+      background-color: #fdeaea;
+      color: var(--color-error);
+      border: 1px solid #f0b8b8;
+    }
+
+    /* ===== TARJETAS DE MOTOS ===== */
+    .grid-motos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .tarjeta-moto {
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      padding: 16px;
+      background: var(--color-fondo);
+    }
+
+    .tarjeta-moto .marca {
+      font-size: 11px;
+      color: var(--color-texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tarjeta-moto .modelo {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 4px 0 8px;
+    }
+
+    .tarjeta-moto .precio {
+      font-size: 18px;
+      color: var(--color-acento);
+      font-weight: bold;
+    }
+
+    /* ===== TABLA DE RESERVAS ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      background-color: var(--color-fondo);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-texto-muted);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--color-fondo);
+    }
+
+    tr:hover td {
+      background-color: #faf9f7;
+    }
+
+    /* ===== SIMULADOR DE PAGO ===== */
+    .resultado-pago {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      display: none; /* se muestra al calcular */
+    }
+
+    .resultado-pago p {
+      font-size: 13px;
+      color: var(--color-texto-muted);
+    }
+
+    .resultado-pago .valor-cuota {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--color-acento);
+      margin: 4px 0;
+    }
+
+    /* ===== ESTADO VACÍO ===== */
+    .vacio {
+      text-align: center;
+      color: var(--color-texto-muted);
+      padding: 40px 0;
+      font-size: 14px;
+    }
+
+    /* ===== OCULTAR SECCIONES ===== */
+    .seccion {
+      display: none;
+    }
+
+    .seccion.activo {
+      display: block;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .contenedor {
+        grid-template-columns: 1fr; /* en móvil todo en columna */
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
+      }
+
+      nav p { display: none; }
+
+      nav button {
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: var(--radio);
+        width: auto;
+      }
+
+      nav button.activo {
+        border-bottom-color: var(--color-acento);
+        border-left: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ENCABEZADO -->
+  <header>
+    <h1>&#9875; MOTO GOO</h1>
+    <span>Taller de Programación</span>
+  </header>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="contenedor">
+
+    <!-- MENÚ LATERAL -->
+    <nav>
+      <p>Menú</p>
+      <button class="activo" onclick="mostrarSeccion('usuarios')">&#128100; Registrar Usuario</button>
+      <button onclick="mostrarSeccion('motos')">&#128652; Ver Motos</button>
+      <button onclick="mostrarSeccion('reservar')">&#128203; Reservar</button>
+      <button onclick="mostrarSeccion('pago')">&#128181; Simular Pago</button>
+      <button onclick="mostrarSeccion('reservas')">&#128196; Ver Reservas</button>
+    </nav>
+
+    <!-- CONTENIDO DINÁMICO -->
+    <div class="contenido">
+
+      <!-- ==================== SECCIÓN 1: REGISTRAR USUARIO ==================== -->
+      <div id="sec-usuarios" class="seccion activo">
+        <h2>Registrar Usuario</h2>
+
+        <!-- Mensaje de resultado (éxito/error) -->
+        <div id="msg-usuario" class="alerta"></div>
+
+        <div class="campo">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Ej: Juan Pérez" />
+        </div>
+
+        <div class="campo">
+          <label for="documento">Número de documento</label>
+          <input type="text" id="documento" placeholder="Ej: 1234567890" />
+        </div>
+
+        <button class="btn-principal" onclick="registrarUsuario()">Guardar Usuario</button>
+        <button class="btn-secundario" onclick="limpiarFormUsuario()">Limpiar</button>
+
+        <!-- Contador de usuarios registrados -->
+        <p id="total-usuarios" style="margin-top: 20px; font-size: 13px; color: var(--color-texto-muted);"></p>
+      </div>
+
+      <!-- ==================== SECCIÓN 2: VER MOTOS ==================== -->
+      <div id="sec-motos" class="seccion">
+        <h2>Motocicletas Disponibles</h2>
+        <!-- Las tarjetas de motos se generan con JS -->
+        <div id="lista-motos" class="grid-motos"></div>
+      </div>
+
+      <!-- ==================== SECCIÓN 3: RESERVAR MOTO ==================== -->
+      <div id="sec-reservar" class="seccion">
+        <h2>Hacer una Reserva</h2>
+
+        <div id="msg-reserva" class="alerta"></div>
+
+        <div class="campo">
+          <label for="sel-usuario">Seleccionar Usuario</label>
+          <!-- Se llena dinámicamente con los usuarios guardados -->
+          <select id="sel-usuario">
+            <option value="">-- Seleccione un usuario --</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="sel-moto">Seleccionar Moto</label>
+          <select id="sel-moto">
+            <option value="">-- Seleccione una moto --</option>
+          </select>
+        </div>
+
+        <button class="btn-principal" onclick="hacerReserva()">Confirmar Reserva</button>
+      </div>
+
+      <!-- ==================== SECCIÓN 4: SIMULAR PAGO ==================== -->
+      <div id="sec-pago" class="seccion">
+        <h2>Simular Plan de Pago</h2>
+
+        <div class="campo">
+          <label for="precio-pago">Precio de la moto ($)</label>
+          <input type="number" id="precio-pago" placeholder="Ej: 3000000" min="0" />
+        </div>
+
+        <div class="campo">
+          <label for="cuotas">Número de cuotas</label>
+          <input type="number" id="cuotas" placeholder="Ej: 12" min="1" max="60" />
+        </div>
+
+        <div class="campo">
+          <label for="interes">Interés mensual (%) - opcional</label>
+          <input type="number" id="interes" placeholder="Ej: 1.5" min="0" step="0.1" value="0" />
+        </div>
+
+        <button class="btn-principal" onclick="simularPago()">Calcular Cuota</button>
+
+        <!-- Resultado del simulador, oculto hasta calcular -->
+        <div id="resultado-pago" class="resultado-pago">
+          <p>Valor de cada cuota:</p>
+          <div class="valor-cuota" id="valor-cuota">$0</div>
+          <p id="detalle-pago" style="margin-top: 8px;"></p>
+        </div>
+      </div>
+
+      <!-- ==================== SECCIÓN 5: VER RESERVAS ==================== -->
+      <div id="sec-reservas" class="seccion">
+        <h2>Reservas Registradas</h2>
+
+        <!-- Botón para borrar todas las reservas -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+          <button class="btn-secundario" onclick="limpiarReservas()">Borrar todas</button>
+        </div>
+
+        <!-- Tabla de reservas (se llena con JS) -->
+        <div id="lista-reservas"></div>
+      </div>
+
+    </div><!-- fin .contenido -->
+  </div><!-- fin .contenedor -->
+
+
+  <script>
+    /*
+     * ============================================================
+     *  BASE DE DATOS LOCAL (localStorage)
+     *  Los datos se guardan en el navegador, no se pierden al recargar.
+     *  Clave: "motogoo_usuarios", "motogoo_motos", "motogoo_reservas"
+     * ============================================================
+     */
+
+    // ---- Motos predefinidas (igual que en Java) ----
+    const MOTOS_DEFAULT = [
+      { id: 1, marca: "Yamaha",  modelo: "FZ",      precio: 3000000 },
+      { id: 2, marca: "Honda",   modelo: "CB125",    precio: 2800000 },
+      { id: 3, marca: "AKT",     modelo: "NKD 125",  precio: 2200000 }
+    ];
+
+    // ---- Funciones para leer y guardar datos ----
+
+    // Obtiene los usuarios guardados (o arreglo vacío si no hay ninguno)
+    function getUsuarios() {
+      return JSON.parse(localStorage.getItem("motogoo_usuarios") || "[]");
+    }
+
+    function guardarUsuarios(lista) {
+      localStorage.setItem("motogoo_usuarios", JSON.stringify(lista));
+    }
+
+    // Las motos no cambian, vienen del array fijo
+    function getMotos() {
+      return MOTOS_DEFAULT;
+    }
+
+    function getReservas() {
+      return JSON.parse(localStorage.getItem("motogoo_reservas") || "[]");
+    }
+
+    function guardarReservas(lista) {
+      localStorage.setItem("motogoo_reservas", JSON.stringify(lista));
+    }
+
+    /*
+     * ============================================================
+     *  NAVEGACIÓN ENTRE SECCIONES
+     * ============================================================
+     */
+    function mostrarSeccion(id) {
+      // Ocultar todas las secciones
+      document.querySelectorAll(".seccion").forEach(s => s.classList.remove("activo"));
+
+      // Quitar clase activo de todos los botones del menú
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("activo"));
+
+      // Mostrar la sección seleccionada
+      document.getElementById("sec-" + id).classList.add("activo");
+
+      // Marcar el botón activo en el menú
+      event.currentTarget.classList.add("activo");
+
+      // Renderizar contenido dinámico según la sección
+      if (id === "motos")    renderMotos();
+      if (id === "reservar") cargarSelects();
+      if (id === "reservas") renderReservas();
+      if (id === "usuarios") actualizarContador();
+    }
+
+    /*
+     * ============================================================
+     *  SECCIÓN 1: REGISTRAR USUARIO
+     * ============================================================
+     */
+    function registrarUsuario() {
+      const nombre    = document.getElementById("nombre").value.trim();
+      const documento = document.getElementById("documento").value.trim();
+
+      // Validar que los campos no estén vacíos
+      if (!nombre || !documento) {
+        mostrarMensaje("msg-usuario", "Por favor completa todos los campos.", "error");
+        return;
+      }
+
+      const usuarios = getUsuarios();
+
+      // Verificar que el documento no esté duplicado
+      const yaExiste = usuarios.some(u => u.documento === documento);
+      if (yaExiste) {
+        mostrarMensaje("msg-usuario", "Ya existe un usuario con ese documento.", "error");
+        return;
+      }
+
+      // Crear y guardar el nuevo usuario
+      const nuevoUsuario = { nombre, documento };
+      usuarios.push(nuevoUsuario);
+      guardarUsuarios(usuarios);
+
+      mostrarMensaje("msg-usuario", "Usuario registrado correctamente.", "exito");
+      limpiarFormUsuario();
+      actualizarContador();
+    }
+
+    function limpiarFormUsuario() {
+      document.getElementById("nombre").value = "";
+      document.getElementById("documento").value = "";
+    }
+
+    function actualizarContador() {
+      const total = getUsuarios().length;
+      document.getElementById("total-usuarios").textContent =
+        total === 0
+          ? "No hay usuarios registrados aún."
+          : `Usuarios registrados: ${total}`;
+    }
+
+    /*
+     * ============================================================
+     *  SECCIÓN 2: VER MOTOS
+     * ============================================================
+     */
+    function renderMotos() {
+      const motos = getMotos();
+      const contenedor = document.getElementById("lista-motos");
+      contenedor.innerHTML = ""; // limpiar antes de renderizar
+
+      motos.forEach(moto => {
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "tarjeta-moto";
+        tarjeta.innerHTML = `
+          <p class="marca">${moto.marca}</p>
+          <p class="modelo">${moto.modelo}</p>
+          <p class="precio">$${moto.precio.toLocaleString("es-CO")}</p>
+        `;
+        contenedor.appendChild(tarjeta);
+      });
+    }
+
+    /*
+     * ============================================================
+     *  SECCIÓN 3: RESERVAR MOTO
+     * ============================================================
+     */
+    function cargarSelects() {
+      // Llenar el select de usuarios con los guardados
+      const selUsuario = document.getElementById("sel-usuario");
+      selUsuario.innerHTML = '<option value="">-- Seleccione un usuario --</option>';
+      getUsuarios().forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.documento;
+        opt.textContent = `${u.nombre} (${u.documento})`;
+        selUsuario.appendChild(opt);
+      });
+
+      // Llenar el select de motos
+      const selMoto = document.getElementById("sel-moto");
+      selMoto.innerHTML = '<option value="">-- Seleccione una moto --</option>';
+      getMotos().forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = `${m.marca} ${m.modelo} - $${m.precio.toLocaleString("es-CO")}`;
+        selMoto.appendChild(opt);
+      });
+    }
+
+    function hacerReserva() {
+      const docUsuario = document.getElementById("sel-usuario").value;
+      const idMoto     = parseInt(document.getElementById("sel-moto").value);
+
+      // Validar selección
+      if (!docUsuario || !idMoto) {
+        mostrarMensaje("msg-reserva", "Debes seleccionar un usuario y una moto.", "error");
+        return;
+      }
+
+      const usuarios = getUsuarios();
+      const motos    = getMotos();
+      const reservas = getReservas();
+
+      // Buscar el usuario y la moto seleccionados
+      const usuario = usuarios.find(u => u.documento === docUsuario);
+      const moto    = motos.find(m => m.id === idMoto);
+
+      // Guardar la nueva reserva con fecha y hora
+      const nuevaReserva = {
+        usuario: usuario.nombre,
+        documento: usuario.documento,
+        marca: moto.marca,
+        modelo: moto.modelo,
+        precio: moto.precio,
+        fecha: new Date().toLocaleString("es-CO") // fecha actual
+      };
+
+      reservas.push(nuevaReserva);
+      guardarReservas(reservas);
+
+      mostrarMensaje("msg-reserva", `Reserva realizada: ${usuario.nombre} → ${moto.marca} ${moto.modelo}`, "exito");
+
+      // Resetear selects
+      document.getElementById("sel-usuario").value = "";
+      document.getElementById("sel-moto").value = "";
+    }
+
+    /*
+     * ============================================================
+     *  SECCIÓN 4: SIMULAR PLAN DE PAGO
+     * ============================================================
+     */
+    function simularPago() {
+      const precio  = parseFloat(document.getElementById("precio-pago").value);
+      const cuotas  = parseInt(document.getElementById("cuotas").value);
+      const interes = parseFloat(document.getElementById("interes").value) || 0;
+
+      // Validar entradas
+      if (isNaN(precio) || isNaN(cuotas) || precio <= 0 || cuotas <= 0) {
+        alert("Por favor ingresa un precio y número de cuotas válidos.");
+        return;
+      }
+
+      let cuotaMensual;
+
+      if (interes === 0) {
+        // Sin interés: división simple
+        cuotaMensual = precio / cuotas;
+      } else {
+        // Con interés: fórmula de cuota fija (sistema francés)
+        // C = P * i / (1 - (1 + i)^(-n))
+        const i = interes / 100;
+        cuotaMensual = precio * i / (1 - Math.pow(1 + i, -cuotas));
+      }
+
+      const totalPagar = cuotaMensual * cuotas;
+
+      // Mostrar resultado
+      document.getElementById("valor-cuota").textContent =
+        "$" + cuotaMensual.toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+      document.getElementById("detalle-pago").textContent =
+        `${cuotas} cuotas | Total a pagar: $${totalPagar.toLocaleString("es-CO", { maximumFractionDigits: 0 })}` +
+        (interes > 0 ? ` | Interés: ${interes}% mensual` : " | Sin interés");
+
+      document.getElementById("resultado-pago").style.display = "block";
+    }
+
+    /*
+     * ============================================================
+     *  SECCIÓN 5: VER RESERVAS
+     * ============================================================
+     */
+    function renderReservas() {
+      const reservas    = getReservas();
+      const contenedor  = document.getElementById("lista-reservas");
+
+      // Si no hay reservas, mostrar mensaje vacío
+      if (reservas.length === 0) {
+        contenedor.innerHTML = '<div class="vacio">No hay reservas registradas aún.</div>';
+        return;
+      }
+
+      // Construir tabla HTML
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Usuario</th>
+              <th>Documento</th>
+              <th>Moto</th>
+              <th>Precio</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      reservas.forEach((r, index) => {
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${r.usuario}</td>
+            <td>${r.documento}</td>
+            <td>${r.marca} ${r.modelo}</td>
+            <td>$${r.precio.toLocaleString("es-CO")}</td>
+            <td>${r.fecha}</td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+      contenedor.innerHTML = html;
+    }
+
+    function limpiarReservas() {
+      // Confirmar antes de borrar
+      if (confirm("¿Seguro que quieres borrar todas las reservas? Esta acción no se puede deshacer.")) {
+        guardarReservas([]);
+        renderReservas();
+      }
+    }
+
+    /*
+     * ============================================================
+     *  UTILIDADES
+     * ============================================================
+     */
+
+    // Muestra un mensaje de alerta en el elemento con el id dado
+    function mostrarMensaje(id, texto, tipo) {
+      const el = document.getElementById(id);
+      el.textContent  = texto;
+      el.className    = "alerta " + tipo; // agrega clase "exito" o "error"
+      el.style.display = "block";
+
+      // Ocultar automáticamente después de 4 segundos
+      setTimeout(() => { el.style.display = "none"; }, 4000);
+    }
+
+    // ---- Inicializar al cargar la página ----
+    actualizarContador();
+  </script>
+
+</body>
+</html>
